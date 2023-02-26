@@ -40,15 +40,37 @@ class StrConverter extends Command
 
     public function toAlternateCase($string)
     {
-        return preg_replace_callback('/./', function($match) {
-            return ord($match[0]) % 2 == 0 ? strtoupper($match[0]) : strtolower($match[0]);
-        }, $string);
+
+        $output = '';
+        $uppercase = true;
+        for ($i = 0; $i < strlen($string); $i++) {
+            $char = $string[$i];
+            if ($char === ' ') {
+                $output .= ' '; // include empty space in output
+                continue; // skip to the next character
+            }
+            if ($uppercase) {
+                $output .= strtoupper($char);
+            } else {
+                $output .= strtolower($char);
+            }
+            $uppercase = !$uppercase;
+        }
+        return $output;
     }
 
     public function toCsv($string)
     {
         $csv = Writer::createFromString('');
-        $csv->insertOne(str_split($string));
+        // Set the delimiter and line ending
+        $csv->setDelimiter(',');
+        $csv->setNewline('');
+        $csvData = str_split($string);
+        //$csvDataString = implode(',', $csvData);
+        //$csvDataString = $csvDataString . PHP_;
+       // $csv->output($csvDataString , 'output.csv');
+        $csv->insertOne($csvData);
         file_put_contents('string.csv', $csv->getContent());
     }
+
 }
